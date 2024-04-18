@@ -1,6 +1,9 @@
 import tkinter as tk
 import random
 import time
+from playsound import playsound
+import threading
+import requests
 
 UPDATE_TIME = 30  # Define update time in milliseconds
 
@@ -65,6 +68,7 @@ class TimeLabel:
         self.canvas.delete(self.shape.id)
         self.shape = new_shape
         self.canvas.tag_raise(self.text_id)  # Bring the text to the front
+        threading.Thread(target=playsound, args=('beep.mp3',)).start()
 
     def move(self):
         self.root.after(UPDATE_TIME, self.move)
@@ -80,12 +84,26 @@ def update_time():
     canvas.config(bg=get_random_color())  # Change the background color every frame
     root.after(UPDATE_TIME, update_time)
 
-root = tk.Tk()
-root.title("Professional Colorful Color-changing Location-changing Resizing Font-changing Shape-changing Clock app 2023 Pro Plus S-Class Fold Z Ultra Mega 5G, 6G, 7G, 8G (Workplace approved)")
-canvas = tk.Canvas(root, width=root.winfo_screenwidth(), height=root.winfo_screenheight())
-canvas.pack()
+def on_close():
+    print("Program closed by user.")
+    root.destroy()
 
-time_labels = [TimeLabel(root, canvas, random.randint(0, root.winfo_screenwidth()), random.randint(0, root.winfo_screenheight()), 'Helvetica', 20, 'white') for _ in range(10)]
+try:
+    # Download the sound file
+    response = requests.get('https://ieonrzfdjfjyrxludwwg.supabase.co/storage/v1/object/public/Bucket/beep.mp3')
+    with open('beep.mp3', 'wb') as f:
+        f.write(response.content)
 
-update_time()
-root.mainloop()
+    root = tk.Tk()
+    root.title("Professional Colorful Color-changing Location-changing Resizing Font-changing Shape-changing Clock app 2023 Pro Plus S-Class Fold Z Ultra Mega 5G, 6G, 7G, 8G (Workplace approved)")
+    root.protocol("WM_DELETE_WINDOW", on_close)  # Handle the window closing event
+    canvas = tk.Canvas(root, width=root.winfo_screenwidth(), height=root.winfo_screenheight())
+    canvas.pack()
+
+    time_labels = [TimeLabel(root, canvas, random.randint(0, root.winfo_screenwidth()), random.randint(0, root.winfo_screenheight()), 'Helvetica', 20, 'white') for _ in range(10)]
+
+    update_time()
+    root.mainloop()
+
+except KeyboardInterrupt:
+    print("Program interrupted by user.")
