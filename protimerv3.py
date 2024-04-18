@@ -2,6 +2,8 @@ import tkinter as tk
 import random
 import time
 
+UPDATE_TIME = 30  # Define update time in milliseconds
+
 class Shape:
     def __init__(self, canvas, x, y, size, color):
         self.canvas = canvas
@@ -38,7 +40,8 @@ class TimeLabel:
         self.text_id = self.canvas.create_text(x, y, text=time.strftime('%H:%M:%S'), font=(font_family, font_size, 'bold'), fill=color)
         self.shape = self.get_random_shape()
         self.shape.create()
-        self.root.after(100, self.move)
+        self.canvas.tag_raise(self.text_id)  # Bring the text to the front
+        self.root.after(UPDATE_TIME, self.move)
 
     def get_random_shape(self):
         shapes = [Oval, Rectangle, Arc, Line]
@@ -54,15 +57,17 @@ class TimeLabel:
     def update(self):
         self.x = random.randint(0, self.root.winfo_screenwidth())
         self.y = random.randint(0, self.root.winfo_screenheight())
+        self.font_size = random.randint(10, 50)  # Generate a new random size for the font
         self.canvas.coords(self.text_id, self.x, self.y)
         self.canvas.itemconfig(self.text_id, text=time.strftime('%H:%M:%S'), font=(self.font_family, self.font_size, 'bold'), fill=self.color)
         new_shape = self.get_random_shape()
         new_shape.create()
         self.canvas.delete(self.shape.id)
         self.shape = new_shape
+        self.canvas.tag_raise(self.text_id)  # Bring the text to the front
 
     def move(self):
-        self.root.after(100, self.move)
+        self.root.after(UPDATE_TIME, self.move)
 
 def get_random_color():
     r = lambda: random.randint(0,255)
@@ -72,12 +77,12 @@ def update_time():
     global time_labels
     for time_label in time_labels:
         time_label.update()
-    root.after(1000, update_time)
+    canvas.config(bg=get_random_color())  # Change the background color every frame
+    root.after(UPDATE_TIME, update_time)
 
 root = tk.Tk()
-root.attributes('-fullscreen', True)
+root.title("Professional Colorful Color-changing Location-changing Resizing Font-changing Shape-changing Clock app 2023 Pro Plus S-Class Fold Z Ultra Mega 5G, 6G, 7G, 8G (Workplace approved)")
 canvas = tk.Canvas(root, width=root.winfo_screenwidth(), height=root.winfo_screenheight())
-canvas.config(bg='#123456')  # Change the background color
 canvas.pack()
 
 time_labels = [TimeLabel(root, canvas, random.randint(0, root.winfo_screenwidth()), random.randint(0, root.winfo_screenheight()), 'Helvetica', 20, 'white') for _ in range(10)]
