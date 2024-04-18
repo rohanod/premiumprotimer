@@ -10,30 +10,17 @@ class Shape:
         self.size = size
         self.color = color
 
-    def move(self):
-        dx = random.randint(-10, 10)
-        dy = random.randint(-10, 10)
-        self.canvas.move(self.id, dx, dy)
-
-    def change_color(self):
-        color = get_random_color()
-        self.canvas.itemconfig(self.id, fill=color)
-
 class Oval(Shape):
     def create(self):
-        self.id = self.canvas.create_oval(self.x, self.y, self.x + self.size, self.y + self.size, fill=self.color, outline=self.color)
+        self.id = self.canvas.create_oval(self.x, self.y, self.x + self.size, self.y + self.size, fill=self.color)
 
-    def change_color(self):
-        color = get_random_color()
-        self.canvas.itemconfig(self.id, fill=color, outline=color)
-
-class Rectangle(Oval):
+class Rectangle(Shape):
     def create(self):
-        self.id = self.canvas.create_rectangle(self.x, self.y, self.x + self.size * 2, self.y + self.size, fill=self.color, outline=self.color)
+        self.id = self.canvas.create_rectangle(self.x, self.y, self.x + self.size, self.y + self.size, fill=self.color)
 
-class Arc(Oval):
+class Arc(Shape):
     def create(self):
-        self.id = self.canvas.create_arc(self.x, self.y, self.x + self.size, self.y + self.size, fill=self.color, outline=self.color)
+        self.id = self.canvas.create_arc(self.x, self.y, self.x + self.size, self.y + self.size, fill=self.color)
 
 class Line(Shape):
     def create(self):
@@ -41,15 +28,41 @@ class Line(Shape):
 
 class TimeLabel:
     def __init__(self, root, canvas, x, y, font_family, font_size, color):
-        self.label = tk.Label(root, text=time.strftime('%H:%M:%S'), font=(font_family, font_size, 'bold'), fg=color)
-        self.label.place(x=x, y=y)
-        self.shape = self.get_random_shape(canvas, x, y, font_size, color)
+        self.root = root
+        self.canvas = canvas
+        self.x = x
+        self.y = y
+        self.font_family = font_family
+        self.font_size = font_size
+        self.color = color
+        self.text_id = self.canvas.create_text(x, y, text=time.strftime('%H:%M:%S'), font=(font_family, font_size, 'bold'), fill=color)
+        self.shape = self.get_random_shape()
         self.shape.create()
+        self.root.after(100, self.move)
 
-    def get_random_shape(self, canvas, x, y, size, color):
+    def get_random_shape(self):
         shapes = [Oval, Rectangle, Arc, Line]
         random_shape = random.choice(shapes)
-        return random_shape(canvas, x, y, size, color)
+        shape_color = get_random_color()
+        while shape_color == self.color:  # Ensure the shape color is different from the text color
+            shape_color = get_random_color()
+        shape_size = self.font_size * 2  # Double the size of the shapes
+        shape_x = self.x - shape_size / 2  # Adjust the x-coordinate of the shape to align with the text
+        shape_y = self.y - shape_size / 2  # Adjust the y-coordinate of the shape to align with the text
+        return random_shape(self.canvas, shape_x, shape_y, shape_size, shape_color)
+
+    def update(self):
+        self.x = random.randint(0, self.root.winfo_screenwidth())
+        self.y = random.randint(0, self.root.winfo_screenheight())
+        self.canvas.coords(self.text_id, self.x, self.y)
+        self.canvas.itemconfig(self.text_id, text=time.strftime('%H:%M:%S'), font=(self.font_family, self.font_size, 'bold'), fill=self.color)
+        new_shape = self.get_random_shape()
+        new_shape.create()
+        self.canvas.delete(self.shape.id)
+        self.shape = new_shape
+
+    def move(self):
+        self.root.after(100, self.move)
 
 def get_random_color():
     r = lambda: random.randint(0,255)
@@ -58,20 +71,16 @@ def get_random_color():
 def update_time():
     global time_labels
     for time_label in time_labels:
-        time_label.label.destroy()
-    canvas.delete("all")
-    canvas.config(bg=get_random_color())  # Add this line to change the background color
-    time_labels = [TimeLabel(root, canvas, random.randint(0, root.winfo_screenwidth()), random.randint(0, root.winfo_screenheight()), random.choice(font_families), random.randint(10, 100), get_random_color()) for _ in range(10)]
-    for time_label in time_labels:
-        time_label.shape.move()
-        time_label.shape.change_color()
-    root.after(10, update_time)
+        time_label.update()
+    root.after(1000, update_time)
 
 root = tk.Tk()
-root.title("Professional Colorful Color-changing Location-changing Resizing Font-changing Shape-changing Clock app 2023 Pro Plus S-Class Fold Z Ultra Mega 5G, 6G, 7G, 8G (Workplace approved)")
-canvas = tk.Canvas(root, width=root.winfo_screenwidth(), height=root.winfo_screenheight(), bg='white')
+root.attributes('-fullscreen', True)
+canvas = tk.Canvas(root, width=root.winfo_screenwidth(), height=root.winfo_screenheight())
+canvas.config(bg='#123456')  # Change the background color
 canvas.pack()
-font_families = ['calibri', 'times', 'helvetica', 'courier', 'arial', 'impact', 'comic sans ms', 'palatino', 'georgia', 'verdana', 'garamond', 'tahoma']
-time_labels = []
+
+time_labels = [TimeLabel(root, canvas, random.randint(0, root.winfo_screenwidth()), random.randint(0, root.winfo_screenheight()), 'Helvetica', 20, 'white') for _ in range(10)]
+
 update_time()
 root.mainloop()
