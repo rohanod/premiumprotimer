@@ -52,7 +52,8 @@ class TimeLabel:
         self.shape = self.get_random_shape()
         self.shape.create()
         self.canvas.tag_raise(self.text_id)  # Bring the text to the front
-        self.root.after(UPDATE_TIME, self.move)
+        self.root.after(UPDATE_TIME, self.update)
+        threading.Thread(target=self.play_beep).start()
 
     def get_random_shape(self):
         shapes = [Oval, Rectangle, Arc, Line]
@@ -70,6 +71,7 @@ class TimeLabel:
         self.y = random.randint(0, self.root.winfo_screenheight())
         self.font_size = random.randint(10, 50)  # Generate a new random size for the font
         self.font_family = random.choice(normal_font_families)  # Change the font family every frame
+        self.color = get_random_color()  # Change the text color every frame
         self.canvas.coords(self.text_id, self.x, self.y)
         self.canvas.itemconfig(self.text_id, text=time.strftime('%H:%M:%S'), font=(self.font_family, self.font_size, 'bold'), fill=self.color)
         new_shape = self.get_random_shape()
@@ -77,10 +79,11 @@ class TimeLabel:
         self.canvas.delete(self.shape.id)
         self.shape = new_shape
         self.canvas.tag_raise(self.text_id)  # Bring the text to the front
-        threading.Thread(target=playsound, args=('beep.mp3',)).start()
 
-    def move(self):
-        self.root.after(UPDATE_TIME, self.move)
+    def play_beep(self):
+        while True:
+            playsound('beep.mp3')
+            time.sleep(0.5)  # Wait for 500 milliseconds
 
 def get_random_color():
     r = lambda: random.randint(0,255)
@@ -109,7 +112,7 @@ try:
     canvas = tk.Canvas(root, width=root.winfo_screenwidth(), height=root.winfo_screenheight())
     canvas.pack()
 
-    time_labels = [TimeLabel(root, canvas, random.randint(0, root.winfo_screenwidth()), random.randint(0, root.winfo_screenheight()), 'Helvetica', 20, 'white') for _ in range(10)]
+    time_labels = [TimeLabel(root, canvas, random.randint(0, root.winfo_screenwidth()), random.randint(0, root.winfo_screenheight()), random.choice(normal_font_families), 20, 'white') for _ in range(10)]
 
     update_time()
     root.mainloop()
