@@ -7,6 +7,14 @@ import requests
 
 UPDATE_TIME = 30  # Define update time in milliseconds
 
+normal_font_families = ['calibri', 'times', 'helvetica', 'courier', 'arial', 'impact', 'comic sans ms', 'palatino', 'georgia',
+                        'dejavu sans', 'dejavu serif', 'dejavu sans mono', 'roboto', 'ubuntu', 'open sans', 'lato',
+                        'source sans pro', 'montserrat', 'raleway', 'droid sans', 'noto sans', 'noto serif', 'fira sans',
+                        'fira code', 'inconsolata', 'merriweather', 'playfair display', 'oswald', 'quicksand', 'poppins',
+                        'hind', 'josefin sans', 'nunito', 'cabin', 'lobster', 'monospace', 'cursive', 'fantasy', 'system-ui',
+                        'apple system', 'segoe ui', 'tahoma', 'verdana', 'geneva', 'impact', 'copperplate', 'palatino linotype',
+                        'times new roman', 'book antiqua', 'Brush Script MT']
+
 class Shape:
     def __init__(self, canvas, x, y, size, color):
         self.canvas = canvas
@@ -61,6 +69,7 @@ class TimeLabel:
         self.x = random.randint(0, self.root.winfo_screenwidth())
         self.y = random.randint(0, self.root.winfo_screenheight())
         self.font_size = random.randint(10, 50)  # Generate a new random size for the font
+        self.font_family = random.choice(normal_font_families)  # Change the font family every frame
         self.canvas.coords(self.text_id, self.x, self.y)
         self.canvas.itemconfig(self.text_id, text=time.strftime('%H:%M:%S'), font=(self.font_family, self.font_size, 'bold'), fill=self.color)
         new_shape = self.get_random_shape()
