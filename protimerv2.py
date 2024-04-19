@@ -1,6 +1,7 @@
 import tkinter as tk
 import random
 import time
+import os
 
 def get_random_color():
     r = lambda: random.randint(0,255)
@@ -8,24 +9,20 @@ def get_random_color():
 
 def update_time():
     current_time = time.strftime('%H:%M:%S')
-    time_label.config(text=current_time, fg=get_random_color())  # Update text color
-    canvas.config(bg=get_random_color())  # Update background color
+    time_label.config(text=current_time, fg=get_random_color())
+    canvas.config(bg=get_random_color())
 
-    # Move the label to a random position within the window
     random_x = random.randint(0, root.winfo_screenwidth() - time_label.winfo_reqwidth())
     random_y = random.randint(0, root.winfo_screenheight() - time_label.winfo_reqheight())
     time_label.place(x=random_x, y=random_y)
 
-    # Change the font family randomly
     font_families = ['calibri', 'times', 'helvetica', 'courier', 'arial', 'impact', 'comic sans ms', 'palatino', 'georgia', 'verdana', 'garamond', 'tahoma']
     random_font_family = random.choice(font_families)
     
-    # Change the font size randomly within a range
     random_font_size = random.randint(10, 100)
     
     time_label.config(font=(random_font_family, random_font_size, 'bold'))
 
-    # Change the shape randomly
     shapes = ['oval', 'rectangle', 'arc', 'line']
     random_shape = random.choice(shapes)
     canvas.delete("all")
@@ -44,6 +41,10 @@ def move_shape(shape_id):
     random_dx = random.randint(-10, 10)
     random_dy = random.randint(-10, 10)
     canvas.move(shape_id, random_dx, random_dy)
+
+def on_close():
+    print("Program closed by user.")
+    os._exit(0)
 
 root = tk.Tk()
 root.title("Professional Colorful Color-changing Location-changing Resizing Font-changing Shape-changing Clock app 2023 Pro Plus S-Class Fold Z Ultra Mega 5G, 6G, 7G, 8G (Workplace approved)")
