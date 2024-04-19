@@ -2,7 +2,7 @@ import tkinter as tk
 import random
 import time
 import pygame
-from multiprocessing import Process, Queue
+import threading
 import requests
 
 UPDATE_TIME = 3  # Define update time in milliseconds
@@ -53,10 +53,9 @@ class TimeLabel:
         self.shape.create()
         self.canvas.tag_raise(self.text_id)  # Bring the text to the front
         self.root.after(UPDATE_TIME, self.update)
-        self.queue = Queue()  # Queue to signal the beeping process to stop
-        self.queue.put(False)  # Initialize the queue with False
-        self.process = Process(target=self.play_beep, args=(self.queue,))  # Create a new process for the beeping sound
-        self.process.start()  # Start the beeping process
+        self.stop_event = threading.Event()  # Event to signal the beeping thread to stop
+        self.thread = threading.Thread(target=self.play_beep)
+        self.thread.start()
 
     def get_random_shape(self):
         shapes = [Oval, Rectangle, Arc, Line]
@@ -83,12 +82,12 @@ class TimeLabel:
         self.shape = new_shape
         self.canvas.tag_raise(self.text_id)  # Bring the text to the front
 
-    def play_beep(self, queue):
+    def play_beep(self):
         pygame.mixer.init()
-        beep_sound = pygame.mixer.Sound('beep.mp3')
-        while not queue.get():  # Check if the stop event is set
-            Process(target=pygame.mixer.Sound.play, args=(beep_sound,)).start()
-            time.sleep(0.1)  # Wait for half a second before starting the next beep sound
+        beep_sound = pygame.mixer.Sound('ding.mp3')
+        while not self.stop_event.is_set():  # Check if the stop event is set
+            threading.Thread(target=pygame.mixer.Sound.play, args=(beep_sound,)).start()
+            # time.sleep(0.5)  # Wait for half a second before starting the next beep sound
 
 def get_random_color():
     r = lambda: random.randint(0,255)
@@ -104,17 +103,16 @@ def update_time():
 def on_close():
     print("Program closed by user.")
     for time_label in time_labels:
-        time_label.queue.put(True)  # Set the stop event
-        if time_label.process.is_alive():  # Check if the process is still running
-            time_label.process.join()  # Stop the process
+        time_label.stop_event.set()  # Set the stop event
+        if time_label.thread.is_alive():  # Check if the thread is still running
+            time_label.thread.join()  # Stop the thread
     root.destroy()
 
 try:
     # Download the sound file
-    response = requests.get('https://ieonrzfdjfjyrxludwwg.supabase.co/storage/v1/object/public/Bucket/beep.mp3')
-    with open('beep.mp3', 'wb') as f:
+    response = requests.get('https://ieonrzfdjfjyrxludwwg.supabase.co/storage/v1/object/public/Bucket/ding.mp3')
+    with open('ding.mp3', 'wb') as f:
         f.write(response.content)
-
     root = tk.Tk()
     root.title("Ultimate Extravaganza Professional Colorful Color-changing Location-changing Resizing Font-changing Shape-changing Clock App Mega Super Duper Turbo Deluxe Plus Ultra Mega 5G, 6G, 7G, 8G Pro Max S-Class Fold Z Ultra Mega X-Treme Edition (Boss-Approved and Coworker Envy Guaranteed)")
     root.protocol("WM_DELETE_WINDOW", on_close)  # Handle the window closing event
