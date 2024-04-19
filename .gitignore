@@ -10,5 +10,8 @@
 # !ProTimerV3.1.dmg
 # !ProTImerV1 with different fonts.dmg
 *
-!pyfiles/
-!README.md
+!pyfiles/protimerV1.py
+!pyfiles/protimerV2.py
+!pyfiles/protimerV3.py
+!pyfiles/protimerV3.1.py
+!pyfiles/protimerV1 with different fonts.py
