@@ -1,1 +1,1 @@
-protimerv3 not ready yet. Still in Testing phase
+ProTimerV4 In progress. It will have rotating shapes and text
